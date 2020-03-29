@@ -1,0 +1,68 @@
+import math
+import matplotlib.pyplot as plt
+import numpy as np
+
+#this program assumes one's portfolio consists of American Options, and that those options are all derivative of the same security
+#It also does not take time into account, it merely calculates return based on the underlying share price. Thus, it is at best imperfect for determining actual portfolio value.
+
+    
+def call_payoff(x, price, strike):
+    lst = [] #this is a temporary list to hold the values, later to be inserted into an array
+    for num in x:    
+        if num <= strike:
+                lst.append(-price) #if the share price is below the strike price
+        else: 
+                lst.append(num-price-strike) #if the share price is above the strike price
+    y = np.array(lst)
+    return y #array of y coordinates that represent a call's profit if exercised at a given share price
+
+def put_payoff(x, price, strike):
+    """this function generates the payoff of a put option in matplot"""
+    lst = [] #similar to use in call_payoff()
+    for num in x:
+        if num >= strike:
+            lst.append(-price) #if share price is above strike price
+        else:
+            lst.append(strike-num-price) #if share price is below strike price
+    y = np.array(lst)
+    return y #array of y coordinates that represent a put's profit if exercised at a given share price
+
+def portfolio():
+    """this function plots the payoff of a series of options"""
+    x = np.arange(0, 100) 
+    condition = True 
+    strike_prices = [] #set up to help list strikes to make graph look prettier later
+    net_y = np.empty(100) #for purpose of adding arrays of y values later in function
+    while condition == True:
+        variant = input("is your option a call or put? (C/P) ") 
+        strike = int(input("What is the strike price of your option? "))
+        price = int(input("What was the price of your option? "))
+        if variant == 'C': #if it's a call
+            y = call_payoff(x, price, strike)
+            net_y = net_y + y #add y values of this specific option to net y values of whole portfolio
+            strike_prices.append(strike) #saves strike in a list for later use in making graph
+            check = input('Do you have any more options in your protfolio? (Y/N) ')
+            if check == 'N':
+                condition = False
+        else:
+            y = put_payoff(x, price, strike)
+            net_y = net_y + y #add y values of this specific option to net y values of whole portfolio
+            strike_prices.append(strike) #saves strike in a list for later use in making graph
+            check = input('Do you have any more options in your protfolio? (Y/N) ')
+            if check == 'N':
+                condition = False
+    plt.plot(x, net_y) #plots net returns versus underlying share price
+    plt.ylabel("Net Portfolio Payoff ($)") #x axis label
+    plt.xlabel("Share Price ($)") #y axis label
+    plt.title('Net Portfolio Returns Vs. Share Price of the Underlying Security') #title of graph
+    xaxisx = np.array([0, 100]) #for purposes of making x axis on graph
+    xaxisy = np.array([0, 0]) #for purposes of making x axis on graph
+    plt.plot(xaxisx, xaxisy)  #for purposes of making x axis on graph
+    for prices in strike_prices:    #plots a nice vertical dotted line at each option's strike price
+        straighty = np.array([ -100, 200])
+        straightx = np.array([prices, prices])
+        plt.plot(straightx, straighty, 'r--')
+    plt.show()
+        
+portfolio()
+        
